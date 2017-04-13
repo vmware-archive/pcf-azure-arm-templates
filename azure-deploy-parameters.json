@@ -1,0 +1,30 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "storageAccountName": {
+      "value": "YOUR-STORAGE-ACCOUNT-NAME"
+    },
+    "adminSSHKey": {
+      "value": "YOUR-RSA-PUBLIC-KEY"
+    },
+    "tenantID": {
+      "value": "YOUR-TENANT-ID"
+    },
+    "clientID": {
+      "value": "YOUR-CLIENT-ID"
+    },
+    "clientSecret": {
+      "value": "YOUR-CLIENT-SECRET"
+    },
+    "vmSize": {
+      "value": "SIZE-OF-OPS-MAN-VM"
+    },
+    "adminUsername": {
+      "value": "ubuntu"
+    },
+    "location": {
+      "value": "OPS-MAN-LOCATION"
+    }
+  }
+}
