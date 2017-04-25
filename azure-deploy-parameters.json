@@ -5,6 +5,9 @@
     "storageAccountName": {
       "value": "YOUR-STORAGE-ACCOUNT-NAME"
     },
+    "storageEndpoint": {
+      "value": "blob.core.windows.net"
+    },
     "adminSSHKey": {
       "value": "YOUR-RSA-PUBLIC-KEY"
     },
