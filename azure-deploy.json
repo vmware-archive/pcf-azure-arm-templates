@@ -68,6 +68,8 @@
     "xstorageid1": "[resourceId('Microsoft.Storage/storageAccounts', concat(variables('boshExtraStorageAccountName'),'1'))]",
     "xstorageid2": "[resourceId('Microsoft.Storage/storageAccounts', concat(variables('boshExtraStorageAccountName'),'2'))]",
     "xstorageid3": "[resourceId('Microsoft.Storage/storageAccounts', concat(variables('boshExtraStorageAccountName'),'3'))]",
+    "xstorageid4": "[resourceId('Microsoft.Storage/storageAccounts', concat(variables('boshExtraStorageAccountName'),'4'))]",
+    "xstorageid5": "[resourceId('Microsoft.Storage/storageAccounts', concat(variables('boshExtraStorageAccountName'),'5'))]",    
     "virtualNetworkName": "pcf-net",
     "sshKeyPath": "[concat('/home/',parameters('adminUsername'),'/.ssh/authorized_keys')]",
     "addressPrefix": "10.0.0.0/16",
@@ -91,7 +93,7 @@
       "apiVersion": "[variables('api-version')]",
       "location": "[variables('location')]",
       "properties": {
-        "accountType": "Standard_LRS"
+        "accountType": "Premium_LRS"
       }
     },
     {
@@ -100,7 +102,7 @@
       "apiVersion": "[variables('api-version')]",
       "location": "[variables('location')]",
       "properties": {
-        "accountType": "Standard_LRS"
+        "accountType": "Premium_LRS"
       }
     },
     {
@@ -109,7 +111,25 @@
       "apiVersion": "[variables('api-version')]",
       "location": "[variables('location')]",
       "properties": {
-        "accountType": "Standard_LRS"
+        "accountType": "Premium_LRS"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[concat(variables('boshExtraStorageAccountName'), '4')]",
+      "apiVersion": "[variables('api-version')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "accountType": "Premium_LRS"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[concat(variables('boshExtraStorageAccountName'), '5')]",
+      "apiVersion": "[variables('api-version')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "accountType": "Premium_LRS"
       }
     },
     {
