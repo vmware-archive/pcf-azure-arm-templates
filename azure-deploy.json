@@ -8,6 +8,12 @@
         "description": "Name of storage account created with Azure CLI"
       }
     },
+    "storageEndpoint": {
+      "type": "string",
+      "metadata": {
+        "description": "Domain prefix for storaged based on the chosen Azure cloud i.e. Commercial, Germany, etc."
+      }
+    },
     "vmSize": {
       "type": "string",
       "defaultValue": "Standard_DS2_v2",
@@ -422,10 +428,10 @@
             "name": "osdisk",
             "createOption": "FromImage",
             "image": {
-              "uri": "[concat('https://',parameters('storageAccountName'),'.blob.core.windows.net/opsman-image/image.vhd')]"
+              "uri": "[concat('https://',parameters('storageAccountName'),'.',parameters('storageEndpoint'),'/opsman-image/image.vhd')]"
             },
             "vhd": {
-              "uri": "[concat('http://',parameters('storageAccountName'),'.blob.core.windows.net/',variables('vmStorageAccountContainerName'),'/',variables('opsManVMName'),'-osdisk.vhd')]"
+              "uri": "[concat('http://',parameters('storageAccountName'),'.',parameters('storageEndpoint'),'/',variables('vmStorageAccountContainerName'),'/',variables('opsManVMName'),'-osdisk.vhd')]"
             },
             "caching": "ReadWrite",
             "diskSizeGB": "120"
