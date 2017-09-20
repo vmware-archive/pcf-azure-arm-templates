@@ -67,8 +67,8 @@
       "defaultValue": "dev",
       "metadata": {
         "description": "The environment label for this PCF deployment. Defaults to 'dev'."
+      }
     }
-}
   },
   "variables": {
     "boshExtraStorageAccountName": "[concat('xtrastrg',uniquestring(resourceGroup().id, deployment().name))]",
@@ -143,136 +143,127 @@
         "publicIPAllocationMethod": "Dynamic",
         "publicIPAddressVersion": "IPv4",
         "dnsSettings": {
-          "domainNameLabel": "[variables('opsManFQDNPrefix')]",
+          "domainNameLabel": "[variables('opsManFQDNPrefix')]"
         }
       }
     },
     {
-      "apiVersion": "[variables('api-version')]",
-      "type": "Microsoft.Network/publicIPAddresses",
       "name": "pcf-lb-ip",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2017-03-01",
       "location": "[variables('location')]",
+      "tags": {
+        "Environment": "[variables('env')]"
+      },
       "properties": {
-        "publicIPAllocationMethod": "static"
+        "publicIPAllocationMethod": "Dynamic",
+        "publicIPAddressVersion": "IPv4",
+        "dnsSettings": {
+          "domainNameLabel": "[variables('opsManFQDNPrefix')]"
+        }
       }
     },
     {
-      "apiVersion": "2015-06-15",
-      "type": "Microsoft.Network/networkSecurityGroups",
-      "name": "[variables('subnet1NSG')]",
-      "location": "[variables('location')]",
-      "properties": {
-        "securityRules": [
-          {
-            "name": "allow-ssh-to-opsman",
-            "properties": {
-              "description": "Allow Inbound SSH To Ops Manager",
-              "protocol": "*",
-              "sourcePortRange": "*",
-              "destinationPortRange": "22",
-              "sourceAddressPrefix": "*",
-              "destinationAddressPrefix": "[concat(variables('opsManPrivateIPAddress'), '/32')]",
-              "access": "Allow",
-              "priority": 1200,
-              "direction": "Inbound"
-            }
-          },
-          {
-            "name": "allow-http-to-opsman",
-            "properties": {
-              "description": "Allow Inbound HTTP To Ops Manager",
-              "protocol": "*",
-              "sourcePortRange": "*",
-              "destinationPortRange": "80",
-              "sourceAddressPrefix": "*",
-              "destinationAddressPrefix": "[concat(variables('opsManPrivateIPAddress'), '/32')]",
-              "access": "Allow",
-              "priority": 1300,
-              "direction": "Inbound"
-            }
-          },
-          {
-            "name": "allow-https-to-opsman",
-            "properties": {
-              "description": "Allow Inbound HTTPS To Ops Manager",
-              "protocol": "*",
-              "sourcePortRange": "*",
-              "destinationPortRange": "443",
-              "sourceAddressPrefix": "*",
-              "destinationAddressPrefix": "[concat(variables('opsManPrivateIPAddress'), '/32')]",
-              "access": "Allow",
-              "priority": 1400,
-              "direction": "Inbound"
-            }
-          },
-          {
-            "name": "allow-http",
-            "properties": {
-              "protocol": "TCP",
-              "sourcePortRange": "*",
-              "destinationPortRange": "80",
-              "sourceAddressPrefix": "*",
-              "destinationAddressPrefix": "*",
-              "access": "Allow",
-              "priority": 1500,
-              "direction": "Inbound"
-            }
-          },
-          {
-            "name": "allow-https",
-            "properties": {
-              "protocol": "TCP",
-              "sourcePortRange": "*",
-              "destinationPortRange": "443",
-              "sourceAddressPrefix": "*",
-              "destinationAddressPrefix": "*",
-              "access": "Allow",
-              "priority": 1600,
-              "direction": "Inbound"
-            }
-          },
-          {
-            "name": "allow-diego-ssh",
-            "properties": {
-              "protocol": "TCP",
-              "sourcePortRange": "*",
-              "destinationPortRange": "2222",
-              "sourceAddressPrefix": "*",
-              "destinationAddressPrefix": "*",
-              "access": "Allow",
-              "priority": 1700,
-              "direction": "Inbound"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "apiVersion": "[variables('api-version')]",
-      "type": "Microsoft.Network/virtualNetworks",
       "name": "[variables('virtualNetworkName')]",
-      "location": "[variables('location')]",
-      "dependsOn": [
-        "[concat('Microsoft.Network/networkSecurityGroups/', variables('subnet1NSG'))]"
-      ],
-      "properties": {
-        "addressSpace": {
-          "addressPrefixes": [
-            "[variables('addressPrefix')]"
-          ]
-        },
-        "subnets": [
-          {
-            "name": "[variables('subnet1Name')]",
-            "properties": {
-              "addressPrefix": "[variables('subnet1Prefix')]",
-              "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('subnet1NSG'))]"
-              }
-            }
-          }
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2017-03-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "Environment": "[variables('env')]"
+      },
+      "addressSpace": {
+        "addressPrefixes": [
+          "10.0.0.0/16"
         ]
-      }
+      },
+      "subnets": [
+        {
+          "name": "Services",
+          "properties": {
+            "addressPrefix": [
+              "10.0.4.0/22"
+            ],
+            "securityGroups": [
+              {
+                "properties": {
+                  "description": "Allow Inbound HTTP/S",
+                  "protocol": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": "80,443",
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 1000,
+                  "direction": "Inbound"
+                },
+                "name": "Allow-Web"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Deployment",
+          "properties": {
+            "addressPrefix": [
+              "10.0.8.0/22"
+            ],
+            "securityRules": [
+              {
+                "properties": {
+                  "description": "Allow Inbound HTTP/S",
+                  "protocol": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": "80,443",
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 1400,
+                  "direction": "Inbound"
+                },
+                "name": "Allow-Web"
+              },
+              {
+                "properties": {
+                  "description": "Allow Diego SSH",
+                  "protocol": "TCP",
+                  "sourcePortRange": "22",
+                  "destinationPortRange": "2222",
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 1000,
+                  "direction": "Inbound"
+                },
+                "name": "Allow-Diego-SSH"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Management",
+          "properties": {
+            "addressPrefix": [
+              "10.0.12.0/22"
+            ],
+            "securityGroups": [
+              {
+                "properties": {
+                  "description": "Allow Inbound HTTP/S",
+                  "protocol": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": "80,443",
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 1000,
+                  "direction": "Inbound"
+                },
+                "name": "Allow-Web"
+              }
+            ]
+          }
+        }
+      ]
     },
     {
       "apiVersion": "2015-05-01-preview",
