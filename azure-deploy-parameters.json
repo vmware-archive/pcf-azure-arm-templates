@@ -3,10 +3,10 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "storageAccountName": {
-      "value": "YOUR-STORAGE-ACCOUNT-NAME"
+      "value": ""
     },
     "storageEndpoint": {
-      "value": "blob.core.windows.net"
+      "value": ""
     },
     "adminSSHKey": {
       "value": "YOUR-RSA-PUBLIC-KEY"
@@ -21,13 +21,13 @@
       "value": "YOUR-CLIENT-SECRET"
     },
     "vmSize": {
-      "value": "SIZE-OF-OPS-MAN-VM"
+      "value": ""
     },
     "adminUsername": {
       "value": "ubuntu"
     },
     "location": {
-      "value": "OPS-MAN-LOCATION"
+      "value": ""
     }
   }
 }

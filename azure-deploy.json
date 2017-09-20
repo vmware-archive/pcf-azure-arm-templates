@@ -92,7 +92,7 @@
     "opsManPrivateIPAddress": "10.0.0.4",
     "lbName": "pcf-lb",
     "lbID": "[resourceId('Microsoft.Network/loadBalancers',variables('lbName'))]",
-    "frontEndIPConfigID": "[concat(variables('lbID'),'/frontendIPConfigurations/pcf-fe-ip')]",
+    "frontEndIPConfigID": "[concat(variables('lbID'),'/frontendIPConfigurations/pcf-frontend-ip')]",
     "lbPoolID": "[concat(variables('lbID'),'/backendAddressPools/pcf-vms')]",
     "lbProbeID": "[concat(variables('lbID'),'/probes/tcp80')]"
   },
@@ -167,126 +167,127 @@
       "name": "[variables('virtualNetworkName')]",
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2017-03-01",
-      "location": "[resourceGroup().location]",
+      "location": "[variables('location')]",
       "tags": {
         "Environment": "[variables('env')]"
       },
-      "addressSpace": {
-        "addressPrefixes": [
-          "10.0.0.0/16"
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/16"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "Services",
+            "properties": {
+              "addressPrefix": [
+                "10.0.4.0/22"
+              ],
+              "securityGroups": [
+                {
+                  "properties": {
+                    "description": "Allow Inbound HTTP/S",
+                    "protocol": "*",
+                    "sourcePortRange": "*",
+                    "destinationPortRange": "80,443",
+                    "sourceAddressPrefix": "*",
+                    "destinationAddressPrefix": "*",
+                    "access": "Allow",
+                    "priority": 1000,
+                    "direction": "Inbound"
+                  },
+                  "name": "Allow-Web"
+                }
+              ]
+            }
+          },
+          {
+            "name": "Deployment",
+            "properties": {
+              "addressPrefix": [
+                "10.0.8.0/22"
+              ],
+              "securityRules": [
+                {
+                  "properties": {
+                    "description": "Allow Inbound HTTP/S",
+                    "protocol": "*",
+                    "sourcePortRange": "*",
+                    "destinationPortRange": "80,443",
+                    "sourceAddressPrefix": "*",
+                    "destinationAddressPrefix": "*",
+                    "access": "Allow",
+                    "priority": 1400,
+                    "direction": "Inbound"
+                  },
+                  "name": "Allow-Web"
+                },
+                {
+                  "properties": {
+                    "description": "Allow Diego SSH",
+                    "protocol": "TCP",
+                    "sourcePortRange": "22",
+                    "destinationPortRange": "2222",
+                    "sourceAddressPrefix": "*",
+                    "destinationAddressPrefix": "*",
+                    "access": "Allow",
+                    "priority": 1000,
+                    "direction": "Inbound"
+                  },
+                  "name": "Allow-Diego-SSH"
+                }
+              ]
+            }
+          },
+          {
+            "name": "Management",
+            "properties": {
+              "addressPrefix": [
+                "10.0.12.0/22"
+              ],
+              "securityGroups": [
+                {
+                  "properties": {
+                    "description": "Allow Inbound HTTP/S",
+                    "protocol": "*",
+                    "sourcePortRange": "*",
+                    "destinationPortRange": "80,443",
+                    "sourceAddressPrefix": "*",
+                    "destinationAddressPrefix": "*",
+                    "access": "Allow",
+                    "priority": 1000,
+                    "direction": "Inbound"
+                  },
+                  "name": "Allow-Web"
+                }
+              ]
+            }
+          }
         ]
-      },
-      "subnets": [
-        {
-          "name": "Services",
-          "properties": {
-            "addressPrefix": [
-              "10.0.4.0/22"
-            ],
-            "securityGroups": [
-              {
-                "properties": {
-                  "description": "Allow Inbound HTTP/S",
-                  "protocol": "*",
-                  "sourcePortRange": "*",
-                  "destinationPortRange": "80,443",
-                  "sourceAddressPrefix": "*",
-                  "destinationAddressPrefix": "*",
-                  "access": "Allow",
-                  "priority": 1000,
-                  "direction": "Inbound"
-                },
-                "name": "Allow-Web"
-              }
-            ]
-          }
-        },
-        {
-          "name": "Deployment",
-          "properties": {
-            "addressPrefix": [
-              "10.0.8.0/22"
-            ],
-            "securityRules": [
-              {
-                "properties": {
-                  "description": "Allow Inbound HTTP/S",
-                  "protocol": "*",
-                  "sourcePortRange": "*",
-                  "destinationPortRange": "80,443",
-                  "sourceAddressPrefix": "*",
-                  "destinationAddressPrefix": "*",
-                  "access": "Allow",
-                  "priority": 1400,
-                  "direction": "Inbound"
-                },
-                "name": "Allow-Web"
-              },
-              {
-                "properties": {
-                  "description": "Allow Diego SSH",
-                  "protocol": "TCP",
-                  "sourcePortRange": "22",
-                  "destinationPortRange": "2222",
-                  "sourceAddressPrefix": "*",
-                  "destinationAddressPrefix": "*",
-                  "access": "Allow",
-                  "priority": 1000,
-                  "direction": "Inbound"
-                },
-                "name": "Allow-Diego-SSH"
-              }
-            ]
-          }
-        },
-        {
-          "name": "Management",
-          "properties": {
-            "addressPrefix": [
-              "10.0.12.0/22"
-            ],
-            "securityGroups": [
-              {
-                "properties": {
-                  "description": "Allow Inbound HTTP/S",
-                  "protocol": "*",
-                  "sourcePortRange": "*",
-                  "destinationPortRange": "80,443",
-                  "sourceAddressPrefix": "*",
-                  "destinationAddressPrefix": "*",
-                  "access": "Allow",
-                  "priority": 1000,
-                  "direction": "Inbound"
-                },
-                "name": "Allow-Web"
-              }
-            ]
-          }
-        }
-      ]
+      }
     },
     {
-      "apiVersion": "2015-05-01-preview",
       "name": "[variables('lbName')]",
       "type": "Microsoft.Network/loadBalancers",
-      "location": "[resourceGroup().location]",
+      "apiVersion": "2017-03-01",
+      "location": "[variables('location')]",
+      "tags": {
+        "Environment": "[variables('env')]"
+      },
       "dependsOn": [
-        "Microsoft.Network/publicIPAddresses/pcf-lb-ip"
+        "[concat('Microsoft.Network/publicIPAddresses/', 'pcf-lb-ip')]"
       ],
       "properties": {
         "frontendIPConfigurations": [
           {
-            "name": "pcf-fe-ip",
-            "properties": {
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses','pcf-lb-ip')]"
-              }
-            }
+            "name": "pcf-frontend-ip",
+            "publicIPAddress": "[reference(concat('Microsoft.Network/publicIPAddresses/','pcf-lb-ip'))]"
           }
         ],
         "backendAddressPools": [
           {
-            "name": "pcf-vms"
+            "name": "pcf-deployment-vms"
           }
         ],
         "loadBalancingRules": [
@@ -362,9 +363,9 @@
       }
     },
     {
-      "apiVersion": "[variables('api-version')]",
+      "apiVersion": "2017-03-01",
       "type": "Microsoft.Network/networkInterfaces",
-      "name": "[variables('opsManNicName')]",
+      "name": "[variables('opsManVMName')]",
       "location": "[variables('location')]",
       "dependsOn": [
         "[concat('Microsoft.Network/publicIPAddresses/', 'opsman-ip')]",
