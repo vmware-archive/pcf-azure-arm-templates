@@ -227,3 +227,170 @@ This is the virtual network configuration for PCF. It contains one top-level cla
   }
 }
 ```
+
+### Public IP Addresses
+
+#### OpsManager
+
+**Documentation Reference:** https://docs.microsoft.com/en-us/azure/templates/microsoft.network/publicipaddresses
+
+This is the public IP address for OpsManager. It can be changed to static if needed for more proper DNS resolution. However this much be done before OpsManager is initially configured.
+
+```json
+{
+  "type": "Microsoft.Network/publicIPAddresses",
+  "name": "OpsManPublicIP",
+  "apiVersion": "2017-03-01",
+  "location": "[parameters('location')]",
+  "tags": {
+    "Environment": "[parameters('environment')]"
+  },
+  "properties": {
+    "publicIPAllocationMethod": "Dynamic",
+    "publicIPAddressVersion": "IPv4",
+    "dnsSettings": {
+      "domainNameLabel": "[concat('pcf-opsman-',uniquestring(resourceGroup().id, deployment().name))]"
+    }
+  }
+}
+```
+
+#### ERT
+
+**Documentation Reference:** https://docs.microsoft.com/en-us/azure/templates/microsoft.network/publicipaddresses
+
+This is the public IP address for ERT. It can be changed to static if needed for more proper DNS resolution. However this much be done before ERT is initially configured.
+
+```json
+{
+  "type": "Microsoft.Network/publicIPAddresses",
+  "name": "ERTPublicIP",
+  "apiVersion": "2017-03-01",
+  "location": "[parameters('location')]",
+  "tags": {
+    "Environment": "[parameters('environment')]"
+  },
+  "properties": {
+    "publicIPAllocationMethod": "Static",
+    "publicIPAddressVersion": "IPv4",
+    "dnsSettings": {
+      "domainNameLabel": "[concat('apps-',uniquestring(resourceGroup().id, deployment().name))]"
+    }
+  }
+}
+```
+
+### Virtual Network Interfaces
+
+#### OpsManager
+
+**Documentation Reference:** https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networkinterfaces
+
+This is the network interface for OpsManager. It is connected to the Management subnet, but utilises the `AllowWebAndSSH` NetworkSecurityGroup so you can reach it via HTTP or SSH. It consumes the `OpsManPublicIP` resource for it's public IP address.
+
+```json
+{
+  "name": "OpsManNic",
+  "type": "Microsoft.Network/networkInterfaces",
+  "apiVersion": "2017-03-01",
+  "location": "[parameters('location')]",
+  "tags": {
+    "Environment": "[parameters('environment')]"
+  },
+  "dependsOn": [
+    "[concat('Microsoft.Network/networkSecurityGroups/', 'AllowWebAndSSH')]"
+  ],
+  "properties": {
+    "networkSecurityGroup": {
+      "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'AllowWebAndSSH')]"
+    },
+    "ipConfigurations": [
+      {
+        "name": "OpsManIPConfig",
+        "properties": {
+          "privateIPAllocationMethod": "Static",
+          "privateIPAddress": "10.0.4.4",
+          "publicIPAddress": {
+            "id": "[resourceId('Microsoft.Network/publicIPAddresses','OpsManPublicIP')]"
+          },
+          "subnet": {
+            "id": "[reference(concat('Microsoft.Network/virtualNetworks/', 'PCF')).subnets[0].id]"
+          }
+        }
+      }
+    ]
+  }
+}
+```
+
+### Virtual Machines
+
+#### OpsManager
+
+**Documentation Reference:** https://docs.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachines
+
+This is the virtual machine configuration for OpsManager. It is connected to the `OpsManNic` configuration. It consumes the `OpsManPublicIP` resource. By default, it is provisioned as a `Standard_DS2_v2` instance type with 120GB of attached storage; this will allow for tile downloads without running out of space.
+
+```json
+{
+  "apiversion": "2017-03-30",
+  "type": "Microsoft.Compute/virtualMachines",
+  "name": "[variables('opsManVMName')]",
+  "location": "[parameters('location')]",
+  "dependsOn": [
+    "[concat('Microsoft.Network/networkInterfaces/','OpsManNic')]"
+  ],
+  "properties": {
+    "hardwareProfile": {
+      "vmSize": "Standard_DS2_v2"
+    },
+    "osProfile": {
+      "computerName": "pcfopsman",
+      "adminUsername": "[parameters('adminUsername')]",
+      "linuxConfiguration": {
+        "disablePasswordAuthentication": "true",
+        "ssh": {
+          "publicKeys": [
+            {
+              "path": "[concat('/home/',parameters('AdminUserName'),'/.ssh/authorized_keys')]",
+              "keyData": "[parameters('AdminSSHKey')]"
+            }
+          ]
+        }
+      }
+    },
+    "storageProfile": {
+      "osDisk": {
+        "osType": "Linux",
+        "name": "osdisk",
+        "image": {
+          "uri": "[concat('https://',parameters('OpsManVHDStorageAccount'),'.',parameters('BlobStorageEndpoint'),'/opsman-image/image.vhd')]"
+        },
+        "vhd": {
+          "uri": "[concat('http://',parameters('OpsManVHDStorageAccount'),'.',parameters('BlobStorageEndpoint'),'/',parameters('BlobStorageContainer'),'/',variables('opsManVMName'),'-osdisk.vhd')]"
+        },
+        "caching": "ReadWrite",
+        "createOption": "FromImage",
+        "diskSizeGB": "120"
+      }
+    },
+    "networkProfile": {
+      "networkInterfaces": [
+        {
+          "id": "[resourceId('Microsoft.Network/networkInterfaces','OpsManNic')]"
+        }
+      ]
+    }
+  }
+}
+```
+
+## Testing
+
+[`ResetTestResourceGroup.ps1`](./ResetTestResourceGroup.ps1) will assist with development against the ARM Template. It's primary purpose is to reset your test Resource Group. It will delete the existing Resource Group (if it exists, otherwise it will error but continue), recreate the Resource Group, stand up the required infrastructure, and copy the OpsManager VHD to your account. From there, you can test the template easily. It's much faster to delete the Resource Group and let Azure clean up the artifacts than trying to do it manually.
+
+You will need these environment variables:
+
+1. `AZURE_DEFAULT_LOCATION` -> I have "West US", but it can be any region. 
+1. `AZURE_SUBSCRIPTION_NAME` -> Your Azure subscription name. You can get this with `(Get-AzureRmSubscription).SubscriptionName` in PowerShell.
+1. `OpsManURI` -> You can get this from downloading the OpsMan release off the Pivotal Network.
