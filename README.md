@@ -2,7 +2,8 @@
 
 This repo contains ARM templates that help operators deploy Ops Manager Director for Pivotal Cloud Foundry (PCF). 
 
-For more information on installing Pivotal Cloud Foundry, see the [Launching an Ops Manager Director Instance with an ARM Template](https:
+For more information on installing Pivotal Cloud Foundry, see the [Launching an Ops Manager Director Instance with an ARM Template](https://docs.pivotal.io/pivotalcf/customizing/azure-arm-template.html) topic.
+
 ## Template Information
 
 ### Parameters
@@ -15,16 +16,16 @@ For more information on installing Pivotal Cloud Foundry, see the [Launching an 
         "Location": {
       "value": "westus"
     },
-        "OpsManVHDStorageAccount": {
+    "OpsManVHDStorageAccount": {
       "value": ""
     },
-        "AdminSSHKey": {
+    "AdminSSHKey": {
       "value": ""
     },
-        "AdminUserName": {
+    "AdminUserName": {
       "value": "ubuntu"
     },
-        "BlobStorageContainer": {
+    "BlobStorageContainer": {
       "value": "opsman-image"
     }
 }
@@ -34,7 +35,8 @@ For more information on installing Pivotal Cloud Foundry, see the [Launching an 
 
 ### Storage Account
 
-**Documentation Reference:** https:
+**Documentation Reference:** https://docs.microsoft.com/en-us/azure/templates/microsoft.storage/storageaccounts
+
 This is for the Azure Blob Storage configuration, which can be used as a target for the ERT Blob Store.
 
 ```json
@@ -48,7 +50,7 @@ This is for the Azure Blob Storage configuration, which can be used as a target 
       },
       "kind": "Storage",
       "sku": {
-                "name": "Standard_LRS"
+        "name": "Standard_LRS"
       }
     }
 ```
@@ -57,7 +59,8 @@ This is for the Azure Blob Storage configuration, which can be used as a target 
 
 #### Allow Web and SSH
 
-**Documentation Reference:** https:
+**Documentation Reference:** https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules
+
 This security group allows both web-based and SSH-based traffic through to the Management subnet. It can be use for more subnets, however, it's primary purpose is for the OpsManager VM. The `.properties.securityRules[].properties.destinationAddressPrefix` values can be locked down further with this format: `1.1.1.1/32`.
 
 ```json
@@ -120,7 +123,8 @@ This security group allows both web-based and SSH-based traffic through to the M
 
 #### Allow Web
 
-**Documentation Reference:** https:
+**Documentation Reference:** https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups/securityrules
+
 This security group allows web-based traffic. The `.properties.securityRules[].properties.destinationAddressPrefix` values can be locked down further with this format: `1.1.1.1/32`.
 
 ```json
@@ -169,7 +173,8 @@ This security group allows web-based traffic. The `.properties.securityRules[].p
 
 ### Virtual Network
 
-**Documentation Reference:** https:
+**Documentation Reference:** https://docs.microsoft.com/en-us/azure/templates/microsoft.network/virtualnetworks
+
 This is the virtual network configuration for PCF. It contains one top-level class A network: `10.0.0.0/16`. There are three subnets: Management, Services, and Deployment. Each subnet is a `/22` network, aligning with the recommended architecture for PCF. The Management network is designed for OpsManager and other various artifacts, such as jumpboxes, Concourse, etc. The Services network is designed for service-focused tiles, such as the Azure Service Broker, Redis, Spring Cloud Services, etc. The Deployment network is meant for ERT, where your applications will live and run.
 
 ```json
