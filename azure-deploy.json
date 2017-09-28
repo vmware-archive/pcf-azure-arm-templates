@@ -53,7 +53,11 @@
   "variables": {
     "opsManVMName": "PCFOpsManager",
     "pcfVNetID": "[resourceId('Microsoft.Network/virtualNetworks', 'PCF')]",
-    "mgmtSubnetRef": "[concat(variables('pcfVNetID'),'/subnets/', 'Management')]"
+    "mgmtSubnetRef": "[concat(variables('pcfVNetID'),'/subnets/', 'Management')]",
+    "lbName": "ERT-LB",
+    "lbID": "[resourceId('Microsoft.Network/loadBalancers', variables('lbName'))]",
+    "frontEndIPConfigID": "[concat(variables('lbID'),'/frontendIPConfigurations/ERTFrontEndIP')]",
+    "probeID": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('lbName')), '/probes', '/HTTP')]"
   },
   "resources": [
     {
@@ -267,7 +271,7 @@
         ],
         "backendAddressPools": [
           {
-            "name": "ERTBackEndConfiguration"
+            "name": "az"
           }
         ],
         "loadBalancingRules": [
@@ -275,13 +279,13 @@
             "name": "HTTPS",
             "properties": {
               "frontendIPConfiguration": {
-                "id": "[concat('Microsoft.Network/loadBalancers', '/ERT-NLB', '/frontendIPConfigurations', '/ERTFrontEndIP')]"
+                "id": "[variables('frontEndIPConfigID')]"
               },
               "backendAddressPool": {
                 "id": "[concat('Microsoft.Network/loadBalancers', '/ERT-LB', '/backendAddressPools', '/ERTBackEndConfiguration')]"
               },
               "probe": {
-                "id": "[concat('Microsoft.Network/loadBalancers', '/ERT-LB', '/probes/HTTP')]"
+                "id": "[concat(variables('lbID'), '/probes', '/HTTP')]"
               },
               "protocol": "TCP",
               "loadDistribution": "SourceIP",
@@ -295,10 +299,10 @@
             "name": "HTTP",
             "properties": {
               "frontendIPConfiguration": {
-                "id": "[concat('Microsoft.Network/loadBalancers', '/ERT-NLB', '/frontendIPConfigurations', '/ERTFrontEndIP')]"
+                "id": "[variables('frontEndIPConfigID')]"
               },
               "backendAddressPool": {
-                "id": "[concat('Microsoft.Network/loadBalancers', 'ERT-LB', '/backendAddressPools/ERTBackEndConfiguration')]"
+                "id": "[concat('Microsoft.Network/loadBalancers', '/ERT-LB', '/backendAddressPools/ERTBackEndConfiguration')]"
               },
               "protocol": "TCP",
               "loadDistribution": "SourceIP",
@@ -307,7 +311,7 @@
               "enableFloatingIP": false,
               "idleTimeoutInMinutes": 4,
               "probe": {
-                "id": "[concat('Microsoft.Network/loadBalancers', 'ERT-LB', '/probes/HTTP')]"
+                "id": "[concat('Microsoft.Network/loadBalancers', '/ERT-LB', '/probes/HTTP')]"
               }
             }
           },
@@ -315,10 +319,10 @@
             "name": "DiegoSSH",
             "properties": {
               "frontendIPConfiguration": {
-                "id": "[concat('Microsoft.Network/loadBalancers', '/ERT-NLB', '/frontendIPConfigurations', '/ERTFrontEndIP')]"
+                "id": "[variables('frontEndIPConfigID')]"
               },
               "backendAddressPool": {
-                "id": "[concat('Microsoft.Network/loadBalancers', '/ERT-LB', '/backendAddressPools', '/ERTBackEndConfiguration')]"
+                "id": "[concat(variables('lbID'), '/backendAddressPools', '/ERTBackEndConfiguration')]"
               },
               "protocol": "TCP",
               "loadDistribution": "SourceIP",
@@ -327,7 +331,7 @@
               "enableFloatingIP": false,
               "idleTimeoutInMinutes": 4,
               "probe": {
-                "id": "[concat('Microsoft.Network/loadBalancers', 'ERT-LB', '/probes/HTTP')]"
+                "id": "[variables('probeID')]"
               }
             }
           }
@@ -336,11 +340,11 @@
           {
             "name": "HTTP",
             "properties": {
-              "protocol": "http",
+              "protocol": "Http",
               "port": 8080,
               "intervalInSeconds": 5,
               "numberOfProbes": 2,
-              "path": "/health"
+              "requestPath": "/health"
             }
           }
         ]
