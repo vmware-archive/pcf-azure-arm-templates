@@ -58,6 +58,7 @@
     "lbID": "[resourceId('Microsoft.Network/loadBalancers', variables('lbName'))]",
     "frontEndIPConfigID": "[concat(variables('lbID'),'/frontendIPConfigurations/ERTFrontEndIP')]",
     "ertBackEncConfig": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('lbName')), '/backendAddressPools', '/ERTBackEndConfiguration')]",
+    "ertPublicIP": "[resourceId('Microsoft.Network/publicIPAddresses', 'ERTPublicIP')]",
     "probeID": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('lbName')), '/probes', '/HTTP')]"
   },
   "resources": [
@@ -259,20 +260,20 @@
         "Environment": "[parameters('environment')]"
       },
       "dependsOn": [
-        "[concat('Microsoft.Network/publicIPAddresses', '/ERTPublicIP')]"
+        "[variables('ertPublicIP')]"
       ],
       "properties": {
         "frontendIPConfigurations": [
           {
             "name": "ERTFrontEndIP",
             "publicIPAddress": {
-              "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'ERTPublicIP')]"
+              "id": "[variables('ertPublicIP')]"
             }
           }
         ],
         "backendAddressPools": [
           {
-            "name": "az"
+            "name": "ERTBackEndConfiguration"
           }
         ],
         "loadBalancingRules": [
