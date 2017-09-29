@@ -57,6 +57,7 @@
     "lbName": "ERT-LB",
     "lbID": "[resourceId('Microsoft.Network/loadBalancers', variables('lbName'))]",
     "frontEndIPConfigID": "[concat(variables('lbID'),'/frontendIPConfigurations/ERTFrontEndIP')]",
+    "ertBackEncConfig": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('lbName')), '/backendAddressPools', '/ERTBackEndConfiguration')]",
     "probeID": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('lbName')), '/probes', '/HTTP')]"
   },
   "resources": [
@@ -245,7 +246,7 @@
         "publicIPAllocationMethod": "Static",
         "publicIPAddressVersion": "IPv4",
         "dnsSettings": {
-          "domainNameLabel": "[concat('apps-',uniquestring(resourceGroup().id, deployment().name))]"
+          "domainNameLabel": "[concat(uniquestring(resourceGroup().id, deployment().name))]"
         }
       }
     },
@@ -258,7 +259,7 @@
         "Environment": "[parameters('environment')]"
       },
       "dependsOn": [
-        "[concat('Microsoft.Network/publicIPAddresses/', 'ERTPublicIP')]"
+        "[concat('Microsoft.Network/publicIPAddresses', '/ERTPublicIP')]"
       ],
       "properties": {
         "frontendIPConfigurations": [
@@ -282,7 +283,7 @@
                 "id": "[variables('frontEndIPConfigID')]"
               },
               "backendAddressPool": {
-                "id": "[concat('Microsoft.Network/loadBalancers', '/ERT-LB', '/backendAddressPools', '/ERTBackEndConfiguration')]"
+                "id": "[variables('ertBackEncConfig')]"
               },
               "probe": {
                 "id": "[variables('probeID')]"
@@ -302,7 +303,7 @@
                 "id": "[variables('frontEndIPConfigID')]"
               },
               "backendAddressPool": {
-                "id": "[concat('Microsoft.Network/loadBalancers', '/ERT-LB', '/backendAddressPools/ERTBackEndConfiguration')]"
+                "id": "[variables('ertBackEncConfig')]"
               },
               "protocol": "TCP",
               "loadDistribution": "SourceIP",
@@ -322,7 +323,7 @@
                 "id": "[variables('frontEndIPConfigID')]"
               },
               "backendAddressPool": {
-                "id": "[concat(variables('lbID'), '/backendAddressPools', '/ERTBackEndConfiguration')]"
+                "id": "[variables('ertBackEncConfig')]"
               },
               "protocol": "TCP",
               "loadDistribution": "SourceIP",
