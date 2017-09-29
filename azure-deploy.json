@@ -285,7 +285,7 @@
                 "id": "[concat('Microsoft.Network/loadBalancers', '/ERT-LB', '/backendAddressPools', '/ERTBackEndConfiguration')]"
               },
               "probe": {
-                "id": "[concat(variables('lbID'), '/probes', '/HTTP')]"
+                "id": "[variables('probeID')]"
               },
               "protocol": "TCP",
               "loadDistribution": "SourceIP",
@@ -311,7 +311,7 @@
               "enableFloatingIP": false,
               "idleTimeoutInMinutes": 4,
               "probe": {
-                "id": "[concat('Microsoft.Network/loadBalancers', '/ERT-LB', '/probes/HTTP')]"
+                "id": "[variables('probeID')]"
               }
             }
           },
