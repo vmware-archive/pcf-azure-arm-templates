@@ -265,9 +265,11 @@
       "properties": {
         "frontendIPConfigurations": [
           {
-            "name": "ERTFrontEndIP",
-            "publicIPAddress": {
-              "id": "[variables('ertPublicIPConfig')]"
+            "properties": {
+              "name": "ERTFrontEndIP",
+              "publicIPAddress": {
+                "id": "[variables('ertPublicIPConfig')]"
+              }
             }
           }
         ],
