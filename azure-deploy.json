@@ -117,7 +117,7 @@
             "properties": {
               "description": "Allow Inbound SSH",
               "protocol": "TCP",
-              "sourcePortRange": "22",
+              "sourcePortRange": "*",
               "destinationPortRange": "22",
               "sourceAddressPrefix": "*",
               "destinationAddressPrefix": "*",
