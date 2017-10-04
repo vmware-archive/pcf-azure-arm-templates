@@ -8,6 +8,8 @@ For more information on installing Pivotal Cloud Foundry, see the [Launching an 
 
 ### Parameters
 
+The `AdminSSHKey` is the public SSH key of the PCF Administrator.
+
 ```json
 {
     "Environment": {
@@ -323,6 +325,118 @@ This is the network interface for OpsManager. It is connected to the Management 
 }
 ```
 
+### Network Load Balancer
+
+**Documentation Reference:** https://docs.microsoft.com/en-us/azure/templates/microsoft.network/loadbalancers
+
+This is the NLB configs for the ERT Load Balancer.
+
+```json
+{
+  "name": "ERT-LB",
+  "type": "Microsoft.Network/loadBalancers",
+  "apiVersion": "2015-06-15",
+  "location": "[parameters('location')]",
+  "tags": {
+    "Environment": "[parameters('environment')]"
+  },
+  "dependsOn": [
+    "[variables('ertPublicIPConfig')]"
+  ],
+  "properties": {
+    "frontendIPConfigurations": [
+      {
+        "properties": {
+          "name": "ERTFrontEndIP",
+          "publicIPAddress": {
+            "id": "[variables('ertPublicIPConfig')]"
+          }
+        }
+      }
+    ],
+    "backendAddressPools": [
+      {
+        "name": "ERTBackEndConfiguration"
+      }
+    ],
+    "loadBalancingRules": [
+      {
+        "name": "HTTPS",
+        "properties": {
+          "frontendIPConfiguration": {
+            "id": "[variables('frontEndIPConfigID')]"
+          },
+          "backendAddressPool": {
+            "id": "[variables('ertBackEncConfig')]"
+          },
+          "probe": {
+            "id": "[variables('probeID')]"
+          },
+          "protocol": "TCP",
+          "loadDistribution": "SourceIP",
+          "frontendPort": 443,
+          "backendPort": 443,
+          "idleTimeoutInMinutes": 4,
+          "enableFloatingIP": false
+        }
+      },
+      {
+        "name": "HTTP",
+        "properties": {
+          "frontendIPConfiguration": {
+            "id": "[variables('frontEndIPConfigID')]"
+          },
+          "backendAddressPool": {
+            "id": "[variables('ertBackEncConfig')]"
+          },
+          "protocol": "TCP",
+          "loadDistribution": "SourceIP",
+          "frontendPort": 80,
+          "backendPort": 80,
+          "enableFloatingIP": false,
+          "idleTimeoutInMinutes": 4,
+          "probe": {
+            "id": "[variables('probeID')]"
+          }
+        }
+      },
+      {
+        "name": "DiegoSSH",
+        "properties": {
+          "frontendIPConfiguration": {
+            "id": "[variables('frontEndIPConfigID')]"
+          },
+          "backendAddressPool": {
+            "id": "[variables('ertBackEncConfig')]"
+          },
+          "protocol": "TCP",
+          "loadDistribution": "SourceIP",
+          "frontendPort": 2222,
+          "backendPort": 2222,
+          "enableFloatingIP": false,
+          "idleTimeoutInMinutes": 4,
+          "probe": {
+            "id": "[variables('probeID')]"
+          }
+        }
+      }
+    ],
+    "probes": [
+      {
+        "name": "HTTP",
+        "properties": {
+          "protocol": "Http",
+          "port": 8080,
+          "intervalInSeconds": 5,
+          "numberOfProbes": 2,
+          "requestPath": "/health"
+        }
+      }
+    ]
+  }
+}
+```
+
 ### Virtual Machines
 
 #### OpsManager
@@ -391,6 +505,6 @@ This is the virtual machine configuration for OpsManager. It is connected to the
 
 You will need these environment variables:
 
-1. `AZURE_DEFAULT_LOCATION` -> I have "West US", but it can be any region. 
+1. `AZURE_DEFAULT_LOCATION` -> I have "West US", but it can be any supported region. 
 1. `AZURE_SUBSCRIPTION_NAME` -> Your Azure subscription name. You can get this with `(Get-AzureRmSubscription).SubscriptionName` in PowerShell.
 1. `OpsManURI` -> You can get this from downloading the OpsMan release off the Pivotal Network.

@@ -400,7 +400,7 @@
         },
         "osProfile": {
           "computerName": "pcfopsman",
-          "adminUsername": "[parameters('adminUsername')]",
+          "adminUsername": "[parameters('AdminUserName')]",
           "linuxConfiguration": {
             "disablePasswordAuthentication": "true",
             "ssh": {
