@@ -94,7 +94,7 @@
               "sourceAddressPrefix": "*",
               "destinationAddressPrefix": "*",
               "access": "Allow",
-              "priority": 1100,
+              "priority": 300,
               "direction": "Inbound"
             },
             "name": "Allow-HTTP"
@@ -108,7 +108,7 @@
               "sourceAddressPrefix": "*",
               "destinationAddressPrefix": "*",
               "access": "Allow",
-              "priority": 1000,
+              "priority": 200,
               "direction": "Inbound"
             },
             "name": "Allow-HTTPS"
@@ -122,7 +122,7 @@
               "sourceAddressPrefix": "*",
               "destinationAddressPrefix": "*",
               "access": "Allow",
-              "priority": 1300,
+              "priority": 100,
               "direction": "Inbound"
             },
             "name": "Allow-SSH"
@@ -149,7 +149,7 @@
               "sourceAddressPrefix": "*",
               "destinationAddressPrefix": "*",
               "access": "Allow",
-              "priority": 1100,
+              "priority": 200,
               "direction": "Inbound"
             },
             "name": "Allow-HTTP"
@@ -163,7 +163,7 @@
               "sourceAddressPrefix": "*",
               "destinationAddressPrefix": "*",
               "access": "Allow",
-              "priority": 1000,
+              "priority": 100,
               "direction": "Inbound"
             },
             "name": "Allow-HTTPS"
@@ -194,7 +194,7 @@
             "properties": {
               "addressPrefix": "10.0.4.0/22",
               "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'AllowWeb')]"
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'AllowWebAndSSH')]"
               }
             }
           },
