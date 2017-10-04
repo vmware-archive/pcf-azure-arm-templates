@@ -6,6 +6,8 @@ $OpsManURI = $env:OpsManURI
 # set global verbosity for all commands.
 $PSDefaultParameterValues['*:Verbose'] = $true
 
+Set-AzureRmContext -SubscriptionId (Get-AzureRmSubscription -SubscriptionName $SubscriptionName).SubscriptionId
+
 Write-Host "Cleaning out old Resource Group."
 Remove-AzureRmResourceGroup -Name $ResourceGroup -Verbose -Force
 
