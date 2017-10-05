@@ -6,15 +6,12 @@
       "value": ""
     },
     "Location": {
-      "value": ""
+      "value": " "
     },
     "OpsManVHDStorageAccount": {
       "value": ""
     },
     "AdminSSHKey": {
-      "value": ""
-    },
-    "AdminUserName": {
       "value": ""
     },
     "BlobStorageContainer": {

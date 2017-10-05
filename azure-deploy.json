@@ -41,13 +41,6 @@
       "metadata": {
         "description": "Admin user's public SSH key for SSH-based access."
       }
-    },
-    "AdminUserName": {
-      "type": "string",
-      "defaultValue": "ubuntu",
-      "metadata": {
-        "description": "User name for Operations Manager access via SSH."
-      }
     }
   },
   "variables": {
@@ -400,13 +393,13 @@
         },
         "osProfile": {
           "computerName": "pcfopsman",
-          "adminUsername": "[parameters('AdminUserName')]",
+          "adminUsername": "ubuntu",
           "linuxConfiguration": {
             "disablePasswordAuthentication": "true",
             "ssh": {
               "publicKeys": [
                 {
-                  "path": "[concat('/home/',parameters('AdminUserName'),'/.ssh/authorized_keys')]",
+                  "path": "/home/ubuntu/.ssh/authorized_keys",
                   "keyData": "[parameters('AdminSSHKey')]"
                 }
               ]
