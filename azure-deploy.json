@@ -50,7 +50,7 @@
     "lbName": "ERT-LB",
     "lbID": "[resourceId('Microsoft.Network/loadBalancers', variables('lbName'))]",
     "frontEndIPConfigID": "[concat(variables('lbID'),'/frontendIPConfigurations/ERTFrontEndIP')]",
-    "ertBackEncConfig": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('lbName')), '/backendAddressPools', '/ERTBackEndConfiguration')]",
+    "ertBackEndConfig": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('lbName')), '/backendAddressPools', '/ERTBackEndConfiguration')]",
     "ertPublicIPConfig": "[resourceId('Microsoft.Network/publicIPAddresses', 'ERTPublicIP')]",
     "probeID": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('lbName')), '/probes', '/HTTP')]"
   },
@@ -87,7 +87,7 @@
               "sourceAddressPrefix": "*",
               "destinationAddressPrefix": "*",
               "access": "Allow",
-              "priority": 300,
+              "priority": 1100,
               "direction": "Inbound"
             },
             "name": "Allow-HTTP"
@@ -101,7 +101,7 @@
               "sourceAddressPrefix": "*",
               "destinationAddressPrefix": "*",
               "access": "Allow",
-              "priority": 200,
+              "priority": 1000,
               "direction": "Inbound"
             },
             "name": "Allow-HTTPS"
@@ -115,7 +115,7 @@
               "sourceAddressPrefix": "*",
               "destinationAddressPrefix": "*",
               "access": "Allow",
-              "priority": 100,
+              "priority": 1300,
               "direction": "Inbound"
             },
             "name": "Allow-SSH"
@@ -142,7 +142,7 @@
               "sourceAddressPrefix": "*",
               "destinationAddressPrefix": "*",
               "access": "Allow",
-              "priority": 200,
+              "priority": 1100,
               "direction": "Inbound"
             },
             "name": "Allow-HTTP"
@@ -156,7 +156,7 @@
               "sourceAddressPrefix": "*",
               "destinationAddressPrefix": "*",
               "access": "Allow",
-              "priority": 100,
+              "priority": 1000,
               "direction": "Inbound"
             },
             "name": "Allow-HTTPS"
@@ -245,9 +245,9 @@
       }
     },
     {
-      "name": "ERT-LB",
+      "name": "[variables('lbName')]",
       "type": "Microsoft.Network/loadBalancers",
-      "apiVersion": "2015-06-15",
+      "apiVersion": "2017-03-01",
       "location": "[parameters('location')]",
       "tags": {
         "Environment": "[parameters('environment')]"
@@ -258,8 +258,8 @@
       "properties": {
         "frontendIPConfigurations": [
           {
+            "name": "ERTFrontEndIP",
             "properties": {
-              "name": "ERTFrontEndIP",
               "publicIPAddress": {
                 "id": "[variables('ertPublicIPConfig')]"
               }
@@ -279,7 +279,7 @@
                 "id": "[variables('frontEndIPConfigID')]"
               },
               "backendAddressPool": {
-                "id": "[variables('ertBackEncConfig')]"
+                "id": "[variables('ertBackEndConfig')]"
               },
               "probe": {
                 "id": "[variables('probeID')]"
@@ -299,7 +299,7 @@
                 "id": "[variables('frontEndIPConfigID')]"
               },
               "backendAddressPool": {
-                "id": "[variables('ertBackEncConfig')]"
+                "id": "[variables('ertBackEndConfig')]"
               },
               "protocol": "TCP",
               "loadDistribution": "SourceIP",
@@ -319,7 +319,7 @@
                 "id": "[variables('frontEndIPConfigID')]"
               },
               "backendAddressPool": {
-                "id": "[variables('ertBackEncConfig')]"
+                "id": "[variables('ertBackEndConfig')]"
               },
               "protocol": "TCP",
               "loadDistribution": "SourceIP",
