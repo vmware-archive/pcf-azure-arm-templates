@@ -240,7 +240,7 @@
         "publicIPAllocationMethod": "Static",
         "publicIPAddressVersion": "IPv4",
         "dnsSettings": {
-          "domainNameLabel": "[concat(uniquestring(resourceGroup().id, deployment().name))]"
+          "domainNameLabel": "[concat('pcf-ert-',uniquestring(resourceGroup().id, deployment().name))]"
         }
       }
     },
