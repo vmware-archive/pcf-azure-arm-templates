@@ -4,6 +4,13 @@ This repo contains ARM templates that help operators deploy Ops Manager Director
 
 For more information on installing Pivotal Cloud Foundry, see the [Launching an Ops Manager Director Instance with an ARM Template](https://docs.pivotal.io/pivotalcf/customizing/azure-arm-template.html) topic.
 
+## Versions
+
+Please see the tags for the appropriate version of this template. These tags align with the documentation versions for recent PCF versions. Please file a PR here if there are documentation mismatches and we'll get them fixed.
+
+* **`1.10-`** is for PCF <=1.10. There is no support for managed disks.
+* **`1.11+`** is for PCF >=1.11. There is support for managed disks.
+
 ## Template Information
 
 ### Parameters
