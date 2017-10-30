@@ -119,6 +119,20 @@
               "direction": "Inbound"
             },
             "name": "Allow-SSH"
+          },
+          {
+            "properties": {
+              "description": "Allow CF SSH",
+              "protocol": "TCP",
+              "sourcePortRange": "*",
+              "destinationPortRange": "2222",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 1500,
+              "direction": "Inbound"
+            },
+            "name": "Allow-CF-SSH"
           }
         ]
       }
