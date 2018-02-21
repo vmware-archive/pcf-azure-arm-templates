@@ -16,6 +16,7 @@ Please see the tags for the appropriate version of this template. These tags ali
 ### Parameters
 
 The `AdminSSHKey` is the public SSH key of the PCF Administrator.
+`OpsManDiskType` specifies premium or standard storage attached to the OpsMan VM.
 
 ```json
 {
@@ -36,6 +37,9 @@ The `AdminSSHKey` is the public SSH key of the PCF Administrator.
     },
     "BlobStorageContainer": {
       "value": "opsman-image"
+    },
+    "OpsManDiskType": {
+      "value": "Premium_LRS"
     }
 }
 ```
@@ -446,64 +450,80 @@ This is the NLB configs for the ERT Load Balancer.
 
 ### Virtual Machines
 
-#### OpsManager
+#### VM Image
 
-**Documentation Reference:** https://docs.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachines
-
-This is the virtual machine configuration for OpsManager. It is connected to the `OpsManNic` configuration. It consumes the `OpsManPublicIP` resource. By default, it is provisioned as a `Standard_DS2_v2` instance type with 120GB of attached storage; this will allow for tile downloads without running out of space.
+This is the configuration for the Azure Image resource based on the downloaded OpsMan VHD image file.  This is required when using managed disks to enable the downloaded VHD to be used as a source for the provisioned VM.  By default the disk size associated with the image is 120GB; this will allow for tile downloads without running out of space.
 
 ```json
 {
-  "apiversion": "2017-03-30",
-  "type": "Microsoft.Compute/virtualMachines",
-  "name": "[variables('opsManVMName')]",
-  "location": "[parameters('location')]",
-  "dependsOn": [
-    "[concat('Microsoft.Network/networkInterfaces/','OpsManNic')]"
-  ],
-  "properties": {
-    "hardwareProfile": {
-      "vmSize": "Standard_DS2_v2"
-    },
-    "osProfile": {
-      "computerName": "pcfopsman",
-      "adminUsername": "[parameters('adminUsername')]",
-      "linuxConfiguration": {
-        "disablePasswordAuthentication": "true",
-        "ssh": {
-          "publicKeys": [
+      "type": "Microsoft.Compute/images",
+      "apiVersion": "2017-03-30",
+      "name": "[concat(variables('opsManVMName'),'-image')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "storageProfile": {
+          "osDisk": {
+            "osType": "Linux",
+            "osState": "Generalized",
+            "blobUri": "[concat('https://',parameters('OpsManVHDStorageAccount'),'.',parameters('BlobStorageEndpoint'),'/opsman-image/image.vhd')]",
+            "storageAccountType": "[parameters('OpsManDiskType')]",
+            "diskSizeGB": 120
+          }
+        }
+      }
+    }
+```
+
+
+#### OpsManager VM
+
+**Documentation Reference:** https://docs.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachines
+
+This is the virtual machine configuration for OpsManager. It is connected to the `OpsManNic` configuration. It consumes the `OpsManPublicIP` resource. By default, it is provisioned as a `Standard_DS2_v2` instance type.
+
+```json
+    {
+      "apiversion": "2017-03-30",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[variables('opsManVMName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/','OpsManNic')]",
+        "[concat('Microsoft.Compute/images/',variables('opsManVMName'),'-image')]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_DS2_v2"
+        },
+        "osProfile": {
+          "computerName": "pcfopsman",
+          "adminUsername": "ubuntu",
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": "true",
+            "ssh": {
+              "publicKeys": [
+                {
+                  "path": "/home/ubuntu/.ssh/authorized_keys",
+                  "keyData": "[parameters('AdminSSHKey')]"
+                }
+              ]
+            }
+          }
+        },
+        "storageProfile": {
+            "imageReference": {
+                "id": "[resourceId('Microsoft.Compute/images', concat(variables('opsManVMName'),'-image'))]"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
             {
-              "path": "[concat('/home/',parameters('AdminUserName'),'/.ssh/authorized_keys')]",
-              "keyData": "[parameters('AdminSSHKey')]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces','OpsManNic')]"
             }
           ]
         }
       }
-    },
-    "storageProfile": {
-      "osDisk": {
-        "osType": "Linux",
-        "name": "osdisk",
-        "image": {
-          "uri": "[concat('https://',parameters('OpsManVHDStorageAccount'),'.',parameters('BlobStorageEndpoint'),'/opsman-image/image.vhd')]"
-        },
-        "vhd": {
-          "uri": "[concat('http://',parameters('OpsManVHDStorageAccount'),'.',parameters('BlobStorageEndpoint'),'/',parameters('BlobStorageContainer'),'/',variables('opsManVMName'),'-osdisk.vhd')]"
-        },
-        "caching": "ReadWrite",
-        "createOption": "FromImage",
-        "diskSizeGB": "120"
-      }
-    },
-    "networkProfile": {
-      "networkInterfaces": [
-        {
-          "id": "[resourceId('Microsoft.Network/networkInterfaces','OpsManNic')]"
-        }
-      ]
     }
-  }
-}
 ```
 
 ## Testing
