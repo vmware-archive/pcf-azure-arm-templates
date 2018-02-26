@@ -41,6 +41,13 @@
       "metadata": {
         "description": "Admin user's public SSH key for SSH-based access."
       }
+    },
+    "OpsManDiskType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "metadata": {
+        "description": "Storage account type to be used for OpsMan OS disk, Standard_LRS or Premium_LRS.  Defaults to Premium_LRS."
+      }
     }
   },
   "variables": {
@@ -380,12 +387,30 @@
       }
     },
     {
+      "type": "Microsoft.Compute/images",
+      "apiVersion": "2017-03-30",
+      "name": "[concat(variables('opsManVMName'),'-image')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "storageProfile": {
+          "osDisk": {
+            "osType": "Linux",
+            "osState": "Generalized",
+            "blobUri": "[concat('https://',parameters('OpsManVHDStorageAccount'),'.',parameters('BlobStorageEndpoint'),'/opsman-image/image.vhd')]",
+            "storageAccountType": "[parameters('OpsManDiskType')]",
+            "diskSizeGB": 120
+          }
+        }
+      }
+    },
+    {
       "apiversion": "2017-03-30",
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[variables('opsManVMName')]",
       "location": "[parameters('location')]",
       "dependsOn": [
-        "[concat('Microsoft.Network/networkInterfaces/','OpsManNic')]"
+        "[concat('Microsoft.Network/networkInterfaces/','OpsManNic')]",
+        "[concat('Microsoft.Compute/images/',variables('opsManVMName'),'-image')]"
       ],
       "properties": {
         "hardwareProfile": {
@@ -407,18 +432,8 @@
           }
         },
         "storageProfile": {
-          "osDisk": {
-            "osType": "Linux",
-            "name": "osdisk",
-            "image": {
-              "uri": "[concat('https://',parameters('OpsManVHDStorageAccount'),'.',parameters('BlobStorageEndpoint'),'/opsman-image/image.vhd')]"
-            },
-            "vhd": {
-              "uri": "[concat('http://',parameters('OpsManVHDStorageAccount'),'.',parameters('BlobStorageEndpoint'),'/',parameters('BlobStorageContainer'),'/',variables('opsManVMName'),'-osdisk.vhd')]"
-            },
-            "caching": "ReadWrite",
-            "createOption": "FromImage",
-            "diskSizeGB": "120"
+          "imageReference": {
+              "id": "[resourceId('Microsoft.Compute/images', concat(variables('opsManVMName'),'-image'))]"
           }
         },
         "networkProfile": {
