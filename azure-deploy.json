@@ -131,7 +131,7 @@
       }
     },
     {
-      "name": "AllowWeb",
+      "name": "AllowWebAndDiego",
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2017-03-01",
       "location": "[parameters('location')]",
@@ -167,6 +167,20 @@
               "direction": "Inbound"
             },
             "name": "Allow-HTTPS"
+          },
+          {
+            "properties": {
+              "description": "Allow Inbound Diego SSH",
+              "protocol": "TCP",
+              "sourcePortRange": "*",
+              "destinationPortRange": "2222",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 1200,
+              "direction": "Inbound"
+            },
+            "name": "Allow-Diego-SSH"
           }
         ]
       }
