@@ -1,5 +1,7 @@
 ## :warning: This project is no longer maintained and will be archived soon. :warning:
 
+Please see [terraforming-azure](https://github.com/pivotal-cf/terraforming-azure) for the current state of Azure templating for PCF.
+
 ## PCF Azure Resource Manager (ARM) Templates
 
 This repo contains ARM templates that help operators deploy Ops Manager Director for Pivotal Cloud Foundry (PCF). 
