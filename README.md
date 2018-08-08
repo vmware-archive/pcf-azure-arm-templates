@@ -1,4 +1,6 @@
-# PCF Azure Resource Manager (ARM) Templates
+## :warning: This project is no longer maintained and will be archived soon. :warning:
+
+## PCF Azure Resource Manager (ARM) Templates
 
 This repo contains ARM templates that help operators deploy Ops Manager Director for Pivotal Cloud Foundry (PCF). 
 
