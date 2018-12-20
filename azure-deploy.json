@@ -186,6 +186,47 @@
       }
     },
     {
+      "name": "AllowWeb",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2017-03-01",
+      "location": "[parameters('location')]",
+      "tags": {
+        "Environment": "[parameters('environment')]"
+      },
+      "properties": {
+        "securityRules": [
+          {
+            "properties": {
+              "description": "Allow Inbound HTTP",
+              "protocol": "TCP",
+              "sourcePortRange": "*",
+              "destinationPortRange": "80",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 1100,
+              "direction": "Inbound"
+            },
+            "name": "Allow-HTTP"
+          },
+          {
+            "properties": {
+              "description": "Allow Inbound HTTPS",
+              "protocol": "TCP",
+              "sourcePortRange": "*",
+              "destinationPortRange": "443",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 1000,
+              "direction": "Inbound"
+            },
+            "name": "Allow-HTTPS"
+          }
+        ]
+      }
+    },
+    {
       "name": "PCF",
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2017-03-01",
