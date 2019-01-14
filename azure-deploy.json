@@ -217,7 +217,7 @@
             "properties": {
               "addressPrefix": "10.0.8.0/22",
               "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'AllowWeb')]"
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'AllowWebAndDiego')]"
               }
             }
           },
@@ -226,7 +226,7 @@
             "properties": {
               "addressPrefix": "10.0.12.0/22",
               "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'AllowWeb')]"
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'AllowWebAndDiego')]"
               }
             }
           }
